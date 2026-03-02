@@ -15,18 +15,11 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
-            steps {
-                sh "sudo docker build -t ${DOCKER_IMAGE} ."
-            }
-        }
-        
-        stage('Save and Compress Image') {
+        stage('Build and Save') {
             steps {
                 sh """
-                    sudo docker save ${DOCKER_IMAGE} -o kubeserve.tar
-                    sudo gzip -f kubeserve.tar
-                    sudo chmod 644 kubeserve.tar.gz
+                    docker build -t ${DOCKER_IMAGE} .
+                    docker save ${DOCKER_IMAGE} | gzip > kubeserve.tar.gz
                 """
             }
         }
@@ -35,8 +28,8 @@ pipeline {
             steps {
                 sh """
                     scp -o StrictHostKeyChecking=no -i /home/ec2-user/.ssh/devops-portfolio-key.pem kubeserve.tar.gz ec2-user@${APP_SERVER}:/home/ec2-user/
-                    ssh -o StrictHostKeyChecking=no -i /home/ec2-user/.ssh/devops-portfolio-key.pem ec2-user@${APP_SERVER} "sudo docker load -i /home/ec2-user/kubeserve.tar.gz"
-                    ssh -o StrictHostKeyChecking=no -i /home/ec2-user/.ssh/devops-portfolio-key.pem ec2-user@${APP_SERVER} "sudo docker tag ${DOCKER_IMAGE} kubeserve:latest"
+                    ssh -o StrictHostKeyChecking=no -i /home/ec2-user/.ssh/devops-portfolio-key.pem ec2-user@${APP_SERVER} "gunzip -c /home/ec2-user/kubeserve.tar.gz | docker load"
+                    ssh -o StrictHostKeyChecking=no -i /home/ec2-user/.ssh/devops-portfolio-key.pem ec2-user@${APP_SERVER} "docker tag ${DOCKER_IMAGE} kubeserve:latest"
                 """
             }
         }
