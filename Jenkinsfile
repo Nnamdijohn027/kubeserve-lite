@@ -28,7 +28,6 @@ pipeline {
             steps {
                 sh """
                     sudo docker save ${DOCKER_IMAGE} -o kubeserve.tar
-                    chown jenkins:jenkins kubeserve.tar
                     gzip -f kubeserve.tar
                 """
             }
