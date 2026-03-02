@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubeserve
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kubeserve
+  template:
+    metadata:
+      labels:
+        app: kubeserve
+    spec:
+      containers:
+      - name: kubeserve
+        image: kubeserve:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubeserve
+spec:
+  selector:
+    app: kubeserve
+  ports:
+  - port: 80
+    targetPort: 80
+  type: NodePort
