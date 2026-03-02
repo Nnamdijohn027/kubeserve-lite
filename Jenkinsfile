@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         APP_VERSION = "1.0.${BUILD_NUMBER}"
-        APP_SERVER = "${APP_SERVER_IP}"
+        APP_SERVER = "52.23.177.47"
         DOCKER_IMAGE = "kubeserve:${APP_VERSION}"
     }
     
